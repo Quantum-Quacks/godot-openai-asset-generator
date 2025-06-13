@@ -135,7 +135,7 @@ func _init():
 	options_grid.add_child(quality_label)
 	
 	quality_option = OptionButton.new()
-	quality_option.add_item("HD", 0)
+	quality_option.add_item("High", 0)
 	quality_option.add_item("Medium", 1)
 	quality_option.add_item("Low", 2)
 	quality_option.add_item("Auto", 3)

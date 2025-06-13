@@ -122,9 +122,9 @@ func _init():
     
     # En la función _init(), cambiar las opciones del dropdown:
     quality_option = OptionButton.new()
-    quality_option.add_item("Low", 0)
+    quality_option.add_item("High", 0)
     quality_option.add_item("Medium", 1)
-    quality_option.add_item("High", 2)
+    quality_option.add_item("Low", 2)
     quality_option.add_item("Auto", 3)
 
     quality_option.select(1)  # Medium por defecto
