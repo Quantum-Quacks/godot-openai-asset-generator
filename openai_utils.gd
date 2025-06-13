@@ -24,7 +24,7 @@ enum ImageSize {
 
 # Calidades disponibles
 enum ImageQuality {
-	HD,
+	HIGH,
 	MEDIUM,
 	LOW,
 	AUTO
@@ -33,7 +33,7 @@ enum ImageQuality {
 ## Convierte el enum de calidad a string para la API
 static func quality_to_string(quality: ImageQuality) -> String:
 	match quality:
-		ImageQuality.HD:
+		ImageQuality.HIGH:
 			return "hd"
 		ImageQuality.MEDIUM:
 			return "medium"
@@ -211,11 +211,11 @@ static func get_preset_prompts() -> Dictionary:
 static func get_recommended_settings(asset_type: String) -> Dictionary:
 	match asset_type:
 		"character":
-			return {"size": ImageSize.SQUARE_1024, "quality": ImageQuality.HD, "background": BackgroundType.TRANSPARENT}
+			return {"size": ImageSize.SQUARE_1024, "quality": ImageQuality.HIGH, "background": BackgroundType.TRANSPARENT}
 		"ui_icon":
 			return {"size": ImageSize.SQUARE_1024, "quality": ImageQuality.MEDIUM, "background": BackgroundType.TRANSPARENT}
 		"background":
-			return {"size": ImageSize.HORIZONTAL_1024, "quality": ImageQuality.HD, "background": BackgroundType.COLOR}
+			return {"size": ImageSize.HORIZONTAL_1024, "quality": ImageQuality.HIGH, "background": BackgroundType.COLOR}
 		"prop":
 			return {"size": ImageSize.SQUARE_1024, "quality": ImageQuality.MEDIUM, "background": BackgroundType.TRANSPARENT}
 		_:

@@ -1,4 +1,10 @@
-# OpenAI Image Generator Plugin
+# OpenAI Image Generator
+
+> ⚠️ **ADVERTENCIA: DESARROLLO TEMPRANO**
+> 
+> Este plugin se encuentra en una etapa temprana de desarrollo y puede experimentar cambios drásticos en su funcionalidad, interfaz o configuración. También pueden ocurrir fallos inesperados durante su uso. Se recomienda hacer copias de seguridad de tu proyecto antes de usar este plugin en proyectos importantes.
+> 
+> Usa bajo tu propio riesgo.
 
 Este plugin permite generar imágenes en masa utilizando la API de OpenAI directamente desde el editor de Godot.
 

@@ -5,6 +5,7 @@ extends Control
 
 # Constantes para la API
 const API_URL = "https://api.openai.com/v1/images/generations"
+const DEFAULT_MODEL = "gpt-image-1"
 
 # Variables para la UI
 var api_key_input: LineEdit
@@ -117,12 +118,15 @@ func _init():
     # Calidad (CORREGIDO)
     var quality_label = Label.new()
     quality_label.text = "Calidad:"
+    options_grid.add_child(quality_label)
+    
     # En la función _init(), cambiar las opciones del dropdown:
     quality_option = OptionButton.new()
-    quality_option.add_item("HD", 0)
+    quality_option.add_item("Low", 0)
     quality_option.add_item("Medium", 1)
-    quality_option.add_item("Low", 2)
+    quality_option.add_item("High", 2)
     quality_option.add_item("Auto", 3)
+
     quality_option.select(1)  # Medium por defecto
     options_grid.add_child(quality_option)
     
@@ -302,9 +306,7 @@ func _on_folder_button_pressed() -> void:
 func _on_dir_selected(dir: String) -> void:
     output_folder = dir
     output_folder_input.text = dir
-
-## Maneja el evento de presionar el botón de generación
-## Maneja el evento de presionar el botón de generación
+    
 func _on_generate_button_pressed() -> void:
     print("[DEBUG] Iniciando generación de imágenes...")
     if is_generating:
@@ -378,13 +380,12 @@ func _generate_next_image() -> void:
     print("[DEBUG] Generando imagen ", current_index, " de ", total_images)
     
     # Preparar los parámetros para la API
-    var model = "dall-e-3"  # Modelo corregido
+    var model = DEFAULT_MODEL  # Usar gpt-image-1
     var size = size_option.get_item_text(size_option.selected)
     
-    # Mapear calidad correctamente
-    # En la función _generate_images(), simplificar el mapeo:
-    var quality_text = quality_option.get_item_text(quality_option.selected).to_lower()
-    var quality = quality_text  # Usar directamente el valor seleccionado
+    # Mapear calidad correctamente para gpt-image-1 (solo soporta "standard" y "hd")
+    var quality_text = quality_option.get_item_text(quality_option.selected)
+    var quality = quality_text.to_lower()
     
     print("[DEBUG] Calidad mapeada de '", quality_text, "' a '", quality, "'")
     
@@ -446,9 +447,23 @@ func _on_request_completed(result: int, response_code: int, headers: PackedStrin
     
     var response = JSON.parse_string(response_text)
     if response and "data" in response and response["data"].size() > 0:
-        var image_url = response["data"][0]["url"]
-        print("[DEBUG] URL de imagen obtenida: ", image_url)
-        _download_image(image_url)
+        var image_data = response["data"][0]
+        
+        # Verificar si la respuesta contiene URL o base64
+        if "url" in image_data:
+            # DALL-E 3 devuelve URL
+            var image_url = image_data["url"]
+            print("[DEBUG] URL de imagen obtenida: ", image_url)
+            _download_image(image_url)
+        elif "b64_json" in image_data:
+            # gpt-image-1 devuelve base64
+            var base64_data = image_data["b64_json"]
+            print("[DEBUG] Datos base64 obtenidos, longitud: ", base64_data.length())
+            _save_image_from_base64(base64_data)
+        else:
+            print("[ERROR] Respuesta no contiene 'url' ni 'b64_json'")
+            status_label.text = "Error: Formato de respuesta no reconocido"
+            _finish_generation()
     else:
         print("[ERROR] Respuesta de API inválida: ", response)
         status_label.text = "Error: Respuesta de API inválida"
@@ -526,3 +541,44 @@ func _finish_generation() -> void:
         status_label.text = "Generación interrumpida. " + str(current_index) + " de " + str(total_images) + " imágenes generadas."
     
     progress_bar.visible = false
+
+## Guarda una imagen desde datos base64
+func _save_image_from_base64(base64_data: String) -> void:
+    print("[DEBUG] Procesando imagen desde base64...")
+    
+    # Decodificar base64 a bytes
+    var image_bytes = Marshalls.base64_to_raw(base64_data)
+    if image_bytes.size() == 0:
+        print("[ERROR] Error al decodificar base64")
+        status_label.text = "Error al decodificar imagen base64"
+        _generate_next_image()
+        return
+    
+    print("[DEBUG] Base64 decodificado, tamaño: ", image_bytes.size(), " bytes")
+    
+    # Crear imagen desde los bytes PNG
+    var image = Image.new()
+    var error = image.load_png_from_buffer(image_bytes)
+    if error != OK:
+        print("[ERROR] Error al cargar imagen PNG desde buffer: ", error)
+        status_label.text = "Error al procesar imagen: " + str(error)
+        _generate_next_image()
+        return
+    
+    print("[DEBUG] Imagen cargada correctamente, tamaño: ", image.get_size())
+    
+    # Guardar la imagen
+    var timestamp = Time.get_unix_time_from_system()
+    var file_name = output_folder + "/image_" + str(current_index) + "_" + str(timestamp) + ".png"
+    print("[DEBUG] Guardando imagen como: ", file_name)
+    
+    error = image.save_png(file_name)
+    if error != OK:
+        print("[ERROR] Error al guardar imagen: ", error)
+        status_label.text = "Error al guardar imagen: " + str(error)
+    else:
+        print("[DEBUG] Imagen guardada exitosamente: ", file_name)
+    
+    # Continuar con la siguiente imagen
+    print("[DEBUG] Continuando con siguiente imagen...")
+    _generate_next_image()
