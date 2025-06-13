@@ -1,0 +1,15 @@
+# Ignorar archivos de configuración que contienen API keys
+config.cfg
+
+# Ignorar imágenes generadas de prueba
+test_images/
+*.png
+*.jpg
+*.jpeg
+
+# Ignorar archivos temporales
+*.tmp
+*.temp
+
+# Ignorar logs
+*.log
