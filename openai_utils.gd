@@ -25,8 +25,24 @@ enum ImageSize {
 # Calidades disponibles
 enum ImageQuality {
 	HD,
-	MEDIUM
+	MEDIUM,
+	LOW,
+	AUTO
 }
+
+## Convierte el enum de calidad a string para la API
+static func quality_to_string(quality: ImageQuality) -> String:
+	match quality:
+		ImageQuality.HD:
+			return "hd"
+		ImageQuality.MEDIUM:
+			return "medium"
+		ImageQuality.LOW:
+			return "low"
+		ImageQuality.AUTO:
+			return "auto"
+		_:
+			return "medium"
 
 # Tipos de fondo
 enum BackgroundType {
@@ -54,15 +70,6 @@ static func size_to_string(size: ImageSize) -> String:
 		_:
 			return "1024x1024"
 
-## Convierte el enum de calidad a string para la API
-static func quality_to_string(quality: ImageQuality) -> String:
-	match quality:
-		ImageQuality.HD:
-			return "hd"
-		ImageQuality.MEDIUM:
-			return "medium"
-		_:
-			return "medium"
 
 ## Convierte el enum de fondo a string para la API
 static func background_to_string(background: BackgroundType) -> String:

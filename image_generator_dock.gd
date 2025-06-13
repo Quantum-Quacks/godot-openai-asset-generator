@@ -5,9 +5,6 @@ extends Control
 
 # Constantes para la API
 const API_URL = "https://api.openai.com/v1/images/generations"
-const DEFAULT_MODEL = "dall-e-3"
-const DEFAULT_SIZE = "1024x1024"
-const DEFAULT_QUALITY = "standard"
 
 # Variables para la UI
 var api_key_input: LineEdit
@@ -120,12 +117,13 @@ func _init():
     # Calidad (CORREGIDO)
     var quality_label = Label.new()
     quality_label.text = "Calidad:"
-    options_grid.add_child(quality_label)
-    
+    # En la función _init(), cambiar las opciones del dropdown:
     quality_option = OptionButton.new()
     quality_option.add_item("HD", 0)
-    quality_option.add_item("Standard", 1)
-    quality_option.select(1)  # Standard por defecto
+    quality_option.add_item("Medium", 1)
+    quality_option.add_item("Low", 2)
+    quality_option.add_item("Auto", 3)
+    quality_option.select(1)  # Medium por defecto
     options_grid.add_child(quality_option)
     
     # Fondo
@@ -384,12 +382,9 @@ func _generate_next_image() -> void:
     var size = size_option.get_item_text(size_option.selected)
     
     # Mapear calidad correctamente
+    # En la función _generate_images(), simplificar el mapeo:
     var quality_text = quality_option.get_item_text(quality_option.selected).to_lower()
-    var quality = "standard"  # Valor por defecto
-    if quality_text == "hd":
-        quality = "hd"
-    else:
-        quality = "standard"
+    var quality = quality_text  # Usar directamente el valor seleccionado
     
     print("[DEBUG] Calidad mapeada de '", quality_text, "' a '", quality, "'")
     
